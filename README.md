@@ -101,7 +101,7 @@ True Frogs
 ## Project Structure
 
 ```
-georgia-frog-classifier/
+EDA_frog_call_classifier_dashboard/
 ├── backend/
 │   ├── data_mining/          # Web scrapers and data collection
 │   │   ├── scrapers/         # Individual site scrapers
