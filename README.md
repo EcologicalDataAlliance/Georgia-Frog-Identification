@@ -8,37 +8,44 @@ This system combines bioacoustic data collection, audio processing, and machine 
 
 ### Target Species (Initial Phase)
 Treefrogs 
-- Green Treefrog (Hyla cinerea)
-- Cope's Gray Treefrog (Hyla chrysoscelis)
-- Squirrel Treefrog (Hyla squirella)
-- Pine Woods Tree Frog (Hyla femoralis)
-- Barking Treefrog (Hyla gratiosa)
-- Bird-voiced Treefrog (Hyla avivoca)
+
+- Green Treefrog (Hyla cinerea) []
+- Cope's Gray Treefrog (Dryophytes chrysoscelis) [xeno-canto]
+- Squirrel Treefrog (Hyla squirella) [xeno-canto]
+- Pine Woods Tree Frog (Dryophytes femoralis) [xeno-canto]
+- Barking Treefrog (Dryophytes gratiosa) [xeno-canto]
+- Bird-voiced Treefrog (Dryophytes avivoca avivoca) [xeno-canto]
 ###
 Chorus Frogs
  
-- Spring Peeper (Pseudacris crucifer)
-- Upland Chorus Frog (Pseudacris feriarum)
-- Southern Chorus Frog (Pseudacris nigrita)
-- Little Grass Frog (Pseudacris ocularis)
-- Ornate Chorus Frog (Pseudacris ornata)
-- Brimley's Chorus Frog (Pseudacris brimleyi)
+- Spring Peeper (Pseudacris crucifer) []
+- Upland Chorus Frog (Pseudacris feriarum) [xeno-canto]
+- Southern Chorus Frog (Pseudacris nigrita) []
+- Little Grass Frog (Pseudacris ocularis) [xeno-canto]
+- Ornate Chorus Frog (Pseudacris ornata) []
+- Brimley's Chorus Frog (Pseudacris brimleyi) []
+- Northern Cricket Frog (Acris crepitans) [xeno-canto]
+- Southern Cricket Frog (Acris gryllus) [xeno-canto]
+- Mountain Chorus Frog (Pseudacris brachyphona) []
 ###
 True Frogs
 
-- American Bullfrog (Lithobates catesbeianus)
-- Green Frog (Lithobates clamitans)
-- Southern Leopard Frog (Lithobates sphenocephalus)
-- Pickerel Frog (Lithobates palustris)
-- River Frog (Lithobates heckscheri)
-- Pig Frog (Lithobates grylio)
+- American Bullfrog (Lithobates catesbeianus) [xeno-canto]
+- Green Frog (Lithobates clamitans) []
+- Gopher Frog (Lithobates capito) []
+- Southern Leopard Frog (Lithobates sphenocephalus) [xeno-canto]
+- Pickerel Frog (Lithobates palustris) [xeno-canto]
+- River Frog (Lithobates heckscheri) []
+- Pig Frog (Lithobates grylio) [xeno-canto]
+- Wood Frog (Lithobates sylvatica) [xeno-canto]
+- Carpenter Frog (Lithobates virgatipes) []
 
 (if there are more add them)
 
 ## Core Data Science Features
 
 ### 🔍 **Data Mining & Collection**
-- Automated scraping from bioacoustic databases (Xeno-canto, eBird, FrogID)
+- Automated scraping from bioacoustic databases (Xeno-canto(✓), eBird, FrogID)
 - Citizen science data integration and validation
 - Custom field recording management system
 - Quality assessment and filtering algorithms
