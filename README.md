@@ -1,3 +1,39 @@
+# EDA Frog Call Classifier Dashboard (Frontend)
+
+This repository contains a React + Vite frontend scaffold for an exploratory dashboard focused on frog call classification. It includes three main components:
+- Home
+- Species Dictionary
+- Classifier Interface
+
+The scaffold is built to be backend-ready: the frontend uses an API wrapper that reads `VITE_API_BASE` at runtime so you can point it to a future backend.
+
+Quick start
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the dev server:
+
+```bash
+npm run dev
+```
+
+3. Open the URL printed by Vite (typically http://localhost:5173)
+
+Environment
+- Set `VITE_API_BASE` (e.g. `VITE_API_BASE=http://localhost:8000`) to point API calls to your backend.
+
+Files of interest
+- `src/components/Home.jsx` — landing / overview.
+- `src/components/SpeciesDictionary.jsx` — searchable species reference placeholder.
+- `src/components/Classifier.jsx` — simple classifier UI that will POST files to `/classify`.
+- `src/api/api.js` — small fetch wrapper to centralize backend calls.
+
+Next steps
+- Hook up a backend endpoint (e.g., `/classify`) and update `VITE_API_BASE`.
+- Add tests and CI.
 # Georgia Frog Vocalization Classifier
 
 A comprehensive data science platform for automated classification of frog species native to Georgia using bioacoustic analysis and machine learning. This capstone project emphasizes robust data mining, database architecture, and classification model development over frontend aesthetics.
