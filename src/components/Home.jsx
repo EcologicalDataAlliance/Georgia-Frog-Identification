@@ -16,7 +16,7 @@ export default function Home(){
         <div className="hero-panel">
           <div className="card">
             <strong>Ready</strong>
-            <p>Connect your backend by setting <code>VITE_API_BASE</code>.</p>
+            <p>Connect backend by setting <code>VITE_API_BASE</code>.</p>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ export default function App() {
     <div className="app-root">
       <header className="site-header">
         <div className="container">
-          <Link to="/" className="brand">Hikes of Georgia - Frog Classifier</Link>
+          <Link to="/" className="brand">Hikes of Georgia</Link>
           <nav className="main-nav">
             <Link to="/species">Species Dictionary</Link>
             <Link to="/classifier">Classifier</Link>
@@ -26,7 +26,7 @@ export default function App() {
       </main>
 
       <footer className="site-footer">
-        <div className="container">© {(new Date()).getFullYear()} Frog Call Classifier Dashboard — frontend scaffold</div>
+        <div className="container">© {(new Date()).getFullYear()} Hikes of Georgia</div>
       </footer>
     </div>
   )
