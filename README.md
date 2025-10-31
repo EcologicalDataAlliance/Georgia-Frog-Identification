@@ -368,9 +368,5 @@ This project is developed as an academic capstone with potential for open-source
 ## Acknowledgments
 
 - Georgia Department of Natural Resources for species data
-- Xeno-canto and eBird communities for bioacoustic databases
-- [University Name] Data Science Program faculty advisors
-
----
-
-**Note**: This is a data science capstone project emphasizing rigorous methodology, reproducible research, and practical applications in bioacoustic conservation.
+- Xeno-canto communities for bioacoustic databases
+- Georgia State Data Science Program faculty advisors
