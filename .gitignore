@@ -1,0 +1,55 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenvs / environment
+.venv/
+venv/
+env/
+ENV/
+
+# Env files
+.env
+.env.*
+
+# Jupyter checkpoints (keep notebooks tracked)
+.ipynb_checkpoints/
+
+# Notebook files: tracked in repo (remove if you want to ignore heavy notebooks)
+# *.ipynb
+
+# Generated data and large binary artifacts
+# Ignore processed audio and large spectrogram/augmented outputs (decide on LFS or release assets instead)
+data/processed/
+data/spectrograms/
+data/augmented/
+data/**/processed/
+
+# Common large file types produced by the pipeline
+*.wav
+*.mp3
+*.flac
+*.npy
+
+# Models / intermediate artifacts / packaged releases
+models/
+release/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Testing / caches
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
