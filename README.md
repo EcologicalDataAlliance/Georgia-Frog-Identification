@@ -1,372 +1,107 @@
-# EDA Frog Call Classifier Dashboard (Frontend)
+# GA_Frog_ID_Data_Prep
 
-This repository contains a React + Vite frontend scaffold for an exploratory dashboard focused on frog call classification. It includes three main components:
-- Home
-- Species Dictionary
-- Classifier Interface
+This repository contains the Jupyter notebook-driven data-preparation pipeline used to robustly decode, normalize, and prepare frog audio recordings for feature extraction and model training.
 
-The scaffold is built to be backend-ready: the frontend uses an API wrapper that reads `VITE_API_BASE` at runtime so you can point it to a future backend.
+## What this project does
 
-Quick start
-1. Install dependencies:
+- Downloads audio references (the notebook is set up to fetch from Supabase when credentials are provided).
+- Robustly decodes various input formats (primary loader: `librosa`; fallback: system `ffmpeg`) to avoid failures on tricky MP3/MP4 files.
+- Converts to mono, resamples to 22050 Hz, enforces a 10.0 s standardized duration (pad/trim), applies optional pre-emphasis and peak normalization, and writes 16-bit PCM WAVs.
+- Handles Macaulay Library (ML) recordings with a conservative default leading offset to skip spoken intros and provides tools to generate per-file offset proposals.
 
-```bash
-npm install
+## Important files & layout
+
+- `notebooks/data_preperation.ipynb` — primary pipeline notebook. Contains utilities, robust loader, batch normalization, diagnostics, reprocess helpers, feature-extraction and preview cells, and optional VAD proposal cells.
+- `data/processed/{species}/` — output directory for normalized WAV files produced by the notebook (mono, 22,050 Hz, 10 s, 16-bit PCM).
+- `data/spectrograms/{species}/{base_filename}.npy` — log-mel spectrograms saved as float32 NumPy arrays (dB-scaled). These mirror the processed audio hierarchy.
+- `data/spectrograms/preview/{species}/{base_filename}.png` — compact PNG previews of each spectrogram for quick visual checks.
+- `metadata_train.csv`, `metadata_val.csv`, `metadata_test.csv` — stratified metadata splits produced by the feature-extraction cell (70/15/15 by default). Files are saved at the repository root.
+- `data_preparation_report.md` — short report summarizing parameters, counts, and any notable issues found during feature extraction.
+- `notebooks/metadata_processed_YYYYMMDD_HHMMSS.csv` — per-run metadata recorded by the normalization step (keeps a record of loader used, offsets applied).
+- `notebooks/ml_vad_offset_proposals_*.csv` — (optional) VAD-generated per-file offset proposals when you run the VAD scanner cell.
+- `requirements.txt`, `pyproject.toml`, `setup.cfg` — reproducible dependency files added to the repository; `webrtcvad` is included as an optional extra.
+- `.env.example` — example environment variables (Supabase credentials) if you need to download files from a private store.
+
+## Macaulay Library (ML) handling
+
+- Default behavior: the pipeline applies a leading offset of 4.0 seconds for ML files to conservatively skip human voice intros. This is controlled by the `ML_OFFSET_SEC` constant in the notebook.
+- Per-file overrides: the notebook supports an `offset_overrides` mapping (CSV import or manual edits) so you can fine-tune or disable the offset for individual recordings.
+
+## WebRTC VAD and energy-based fallback
+
+- The notebook includes a VAD-based scanner (uses `webrtcvad`) to propose more accurate per-file leading-trim offsets. This is optional.
+- On Windows, installing `webrtcvad` typically requires Microsoft C++ Build Tools (MSVC). If you can't build it, the notebook also includes an energy-based scanner as a fallback to produce offset proposals.
+
+Note from recent work in this repository: a full normalization run completed successfully in this workspace (1,400 files processed; metadata saved to `notebooks/metadata_processed_20251101_050842.csv`). The VAD proposal cell was added but its runtime requires `webrtcvad` (build may fail on Windows without MSVC). The energy-based scanner is available as an alternative.
+
+## Prerequisites
+
+- Python 3.8+ (3.9/3.10 recommended)
+- System binary: `ffmpeg` (required for robust fallback decoding). On Windows you can install via `winget` (example: `winget install --id=Gyan.FFmpeg -e`) or add a prebuilt `ffmpeg` to your PATH. The notebook tries to detect `ffmpeg` on PATH and in the common winget install location.
+
+Python packages (quick install):
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+# Optional (VAD):
+# python -m pip install webrtcvad
 ```
 
-2. Start the dev server:
+If `webrtcvad` fails to build on Windows, install the Microsoft C++ Build Tools or skip the VAD step and use the energy-based scanner.
 
-```bash
-npm run dev
-```
+## Quick run (notebook)
 
-3. Open the URL printed by Vite (typically http://localhost:5173)
+1. Copy `.env.example` -> `.env` and fill any required Supabase credentials (if you will download files).
+2. Open `notebooks/data_preperation.ipynb` in Jupyter or VS Code.
+3. Inspect and (optionally) adjust constants near the top of the notebook:
+   - `ML_OFFSET_SEC` — default 4.0 seconds for ML recordings.
+   - `TARGET_SR` — 22050 (target sample rate).
+   - `TARGET_DURATION` — 10.0 (seconds)
+4. To process the whole dataset in this environment, set `FULL_RUN = True` in the normalization batch cell and run that cell. The notebook will download (if needed), decode (librosa -> ffmpeg fallback), normalize, and save WAVs to `data/processed/` and a metadata CSV to `notebooks/`.
 
-Environment
-- Set `VITE_API_BASE` (e.g. `VITE_API_BASE=http://localhost:8000`) to point API calls to your backend.
+### Feature extraction (spectrograms + metadata)
 
-Files of interest
-- `src/components/Home.jsx` — landing / overview.
-- `src/components/SpeciesDictionary.jsx` — searchable species reference placeholder.
-- `src/components/Classifier.jsx` — simple classifier UI that will POST files to `/classify`.
-- `src/api/api.js` — small fetch wrapper to centralize backend calls.
+After you've produced `data/processed/` you can run the feature-extraction cell (at the end of the notebook) which will:
 
-Next steps
-- Hook up a backend endpoint (e.g., `/classify`) and update `VITE_API_BASE`.
-- Add tests and CI.
-# Georgia Frog Vocalization Classifier
+- Walk `data/processed/**/*.wav` and compute log-mel spectrograms (defaults: n_mels=64, n_fft=1024, hop_length=512, power=2.0).
+- Save dB-scaled spectrogram arrays as `.npy` under `data/spectrograms/{species}/` mirroring the processed audio tree.
+- Save PNG previews under `data/spectrograms/preview/{species}/` for quick visual checks.
+- Produce stratified train/val/test CSVs at the repo root: `metadata_train.csv`, `metadata_val.csv`, `metadata_test.csv` (70/15/15 by default). If stratified splitting fails because of tiny classes, the cell falls back to a random split and logs a note in `data_preparation_report.md`.
 
-A comprehensive data science platform for automated classification of frog species native to Georgia using bioacoustic analysis and machine learning. This capstone project emphasizes robust data mining, database architecture, and classification model development over frontend aesthetics.
+To run feature extraction: run the final notebook cell (it respects the constants at the top of the notebook; change `N_MELS`, `N_FFT`, `HOP_LENGTH` there if needed).
 
-## Project Overview
+## Outputs and diagnostics
 
-This system combines bioacoustic data collection, audio processing, and machine learning to create an automated classifier for Georgia's native frog species. The project prioritizes data science rigor and model performance while utilizing a clean, functional dashboard interface for visualization and analysis.
+\- Normalized WAVs: `data/processed/{species}/{base_filename}.wav` (mono, 22,050 Hz, 10 s, 16-bit PCM).
+\- Spectrograms: `data/spectrograms/{species}/{base_filename}.npy` (log-mel dB arrays, float32).
+\- PNG previews: `data/spectrograms/preview/{species}/{base_filename}.png`.
+\- Metadata CSVs (feature-split): `metadata_train.csv`, `metadata_val.csv`, `metadata_test.csv` (repo root).
+\- Per-run normalization metadata: `notebooks/metadata_processed_YYYYMMDD_HHMMSS.csv`.
+\- Diagnostics (when enabled): `notebooks/normalization_errors_ML_*.csv`, `notebooks/ml_decode_diagnostics_*.csv`, `notebooks/reprocess_ML_ffmpeg_results_*.csv`.
 
-### Target Species (Initial Phase)
-Treefrogs 
+Additional modeling artifacts (generated by the helper scripts):
 
-- Green Treefrog (Hyla cinerea) []
-- Cope's Gray Treefrog (Dryophytes chrysoscelis) [xeno-canto]
-- Squirrel Treefrog (Hyla squirella) [xeno-canto]
-- Pine Woods Tree Frog (Dryophytes femoralis) [xeno-canto]
-- Barking Treefrog (Dryophytes gratiosa) [xeno-canto]
-- Bird-voiced Treefrog (Dryophytes avivoca avivoca) [xeno-canto]
-###
-Chorus Frogs
- 
-- Spring Peeper (Pseudacris crucifer) []
-- Upland Chorus Frog (Pseudacris feriarum) [xeno-canto]
-- Southern Chorus Frog (Pseudacris nigrita) []
-- Little Grass Frog (Pseudacris ocularis) [xeno-canto]
-- Ornate Chorus Frog (Pseudacris ornata) []
-- Brimley's Chorus Frog (Pseudacris brimleyi) []
-- Northern Cricket Frog (Acris crepitans) [xeno-canto]
-- Southern Cricket Frog (Acris gryllus) [xeno-canto]
-- Mountain Chorus Frog (Pseudacris brachyphona) []
-###
-True Frogs
+- Aggregated features: `data/features_aggregated.csv` — per-file aggregated features (MFCC means/std, spectral centroid/bandwidth/rolloff, RMS, ZCR) with a `provenance` field (run id + timestamp + git commit where available).
+- Baseline model & report: `models/baseline/rf_baseline.joblib`, `models/baseline/report.md` — quick RandomForest baseline and a human-readable report of per-class metrics.
+- Feature importances and permutation importance CSVs: `models/baseline/feature_importances.csv`, `models/baseline/permutation_importance_top10_per_class.csv`.
+- Plots: `models/baseline/plots/` contains PNGs and SVGs for global feature importances and a combined multi-panel permutation-importance figure. Examples:
+   - `global_top20_feature_importances.png` / `_highres.png` / `.svg`
+   - `permutation_importance_all_classes.png` (multi-panel)
+   - `one_slide_combined.png` / `_highres.png` (side-by-side composite for slides)
+- Augmented sample (inspection-only): `data/augmented/sample/` (a small set of augmented WAVs created for underrepresented species) and `models/baseline/augmentation_sample.txt` listing them.
+- Packaged deliverable: `release/modelers_package.zip` — a zip containing the processed data, spectrograms, aggregated features, metadata splits, and baseline report for handoff to modelers.
 
-- American Bullfrog (Lithobates catesbeianus) [xeno-canto]
-- Green Frog (Lithobates clamitans) []
-- Gopher Frog (Lithobates capito) []
-- Southern Leopard Frog (Lithobates sphenocephalus) [xeno-canto]
-- Pickerel Frog (Lithobates palustris) [xeno-canto]
-- River Frog (Lithobates heckscheri) []
-- Pig Frog (Lithobates grylio) [xeno-canto]
-- Wood Frog (Lithobates sylvatica) [xeno-canto]
-- Carpenter Frog (Lithobates virgatipes) []
+## Troubleshooting
 
-(if there are more add them)
+- ffmpeg not found: add `ffmpeg` to PATH or install via winget. The notebook includes logic to detect a winget-installed ffmpeg on Windows.
+- We get occasional decoding issues for some ML MP3s when using the Python loader; the `ffmpeg` fallback addresses most of these.
+- `webrtcvad` build fails on Windows without MSVC — either install Microsoft C++ Build Tools or use the energy-based scanner.
 
-## Core Data Science Features
+## Next steps / suggestions
 
-### 🔍 **Data Mining & Collection**
-- Automated scraping from bioacoustic databases (Xeno-canto(✓), eBird, FrogID)
-- Citizen science data integration and validation
-- Custom field recording management system
-- Quality assessment and filtering algorithms
+1. Run feature extraction (final notebook cell) to produce `data/spectrograms/` and metadata CSVs.
+2. Review class counts in `metadata_train.csv` and produce augmentation strategies only for underrepresented species.
+3. (Optional) If modelers want a single index file, create `metadata_all.csv` by concatenating the split CSVs and adding a `split` column.
 
-### 🗄️ **Audio Database Architecture**
-- PostgreSQL database with optimized audio metadata schema
-- MinIO object storage for audio file management
-- Data versioning and provenance tracking
-- Automated backup and synchronization systems
-
-### 🎵 **Audio Processing Pipeline**
-- Noise reduction and audio enhancement
-- Spectrogram generation and visualization
-- MFCC feature extraction
-- Call segmentation and pattern analysis
-- Data augmentation for training set expansion
-
-### 🤖 **Machine Learning Models**
-- Convolutional Neural Networks for spectrogram classification
-- Recurrent Neural Networks for temporal pattern recognition
-- Ensemble methods combining multiple approaches
-- Cross-validation and performance evaluation framework
-- Model interpretability and confidence scoring
-
-### 📊 **Analytics Dashboard**
-- Real-time classification results visualization
-- Model performance metrics and comparison
-- Species distribution mapping
-- Audio waveform and spectrogram displays
-- Data quality assessment tools
-
-## Technical Architecture
-
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Data Sources  │───▶│  Mining Pipeline │───▶│   Raw Storage   │
-│                 │    │                  │    │                 │
-│ • Xeno-canto    │    │ • Web scrapers   │    │ • Audio files   │
-│ • Citizen sci   │    │ • Data validation│    │ • Metadata      │
-│ • Field recordings│  │ • Quality filter │    │ • Quality scores│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                 │
-                                 ▼
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Processed     │◀───│  Audio Pipeline  │◀───│   PostgreSQL    │
-│     Data        │    │                  │    │    Database     │
-│                 │    │ • Preprocessing  │    │                 │
-│ • Spectrograms  │    │ • Feature extract│    │ • Species data  │
-│ • MFCC features │    │ • Augmentation   │    │ • Locations     │
-│ • Call segments │    │ • Normalization  │    │ • Recordings    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                 │
-                                 ▼
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   ML Models     │◀───│  Training Pipeline│    │  React Dashboard│
-│                 │    │                  │    │                 │
-│ • CNN Classifier│    │ • Model training │    │ • Visualizations│
-│ • RNN Temporal  │    │ • Validation     │    │ • Performance   │
-│ • Ensemble      │    │ • Hyperparameter │    │ • Audio players │
-│ • Confidence    │    │ • Cross-validation│   │ • Species maps  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-```
-
-## Project Structure
-
-```
-EDA_frog_call_classifier_dashboard/
-├── backend/
-│   ├── data_mining/          # Web scrapers and data collection
-│   │   ├── scrapers/         # Individual site scrapers
-│   │   ├── validators/       # Data quality validation
-│   │   └── pipelines/        # ETL processes
-│   ├── database/             # Database models and migrations
-│   │   ├── models/           # SQLAlchemy models
-│   │   ├── migrations/       # Database migrations
-│   │   └── queries/          # Complex queries and views
-│   ├── audio_processing/     # Audio analysis and feature extraction
-│   │   ├── preprocessing/    # Noise reduction, normalization
-│   │   ├── features/         # MFCC, spectrogram extraction
-│   │   ├── segmentation/     # Call detection and segmentation
-│   │   └── augmentation/     # Data augmentation techniques
-│   ├── ml_models/           # Machine learning components
-│   │   ├── architectures/    # Model definitions (CNN, RNN)
-│   │   ├── training/         # Training scripts and utilities
-│   │   ├── evaluation/       # Model evaluation and metrics
-│   │   └── inference/        # Prediction and serving
-│   ├── api/                 # REST API endpoints
-│   │   ├── routes/           # API route definitions
-│   │   ├── middleware/       # Authentication, logging
-│   │   └── serializers/      # Data serialization
-│   └── utils/               # Shared utilities and helpers
-├── frontend/                # React dashboard (adapted from eco_dataset_analytics)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── charts/       # Audio visualization components
-│   │   │   │   ├── SpectrogramChart.jsx
-│   │   │   │   ├── WaveformChart.jsx
-│   │   │   │   ├── ConfidenceChart.jsx
-│   │   │   │   └── SpeciesDistribution.jsx
-│   │   │   ├── dashboard/    # Dashboard layout components
-│   │   │   ├── audio/        # Audio player and controls
-│   │   │   └── classification/ # Classification result displays
-│   │   ├── data/            # Mock data and API integration
-│   │   ├── hooks/           # Custom React hooks
-│   │   └── pages/           # Main application pages
-│   └── public/              # Static assets and audio samples
-├── data/                    # Data storage and management
-│   ├── raw/                 # Raw audio files and metadata
-│   ├── processed/           # Processed features and spectrograms
-│   ├── models/              # Trained model artifacts
-│   └── exports/             # Data exports and reports
-├── notebooks/               # Jupyter notebooks for analysis
-│   ├── exploratory/         # Data exploration and EDA
-│   ├── modeling/            # Model development and testing
-│   └── evaluation/          # Performance analysis
-├── docker/                  # Container configurations
-├── tests/                   # Test suites
-├── scripts/                 # Utility scripts and automation
-└── docs/                    # Documentation and guides
-```
-
-## Getting Started
-
-### Prerequisites
-
-**Data Science Stack:**
-- Python 3.9+ with conda/pip environment
-- PostgreSQL 13+
-- Redis (for caching and job queues)
-- Docker & Docker Compose
-
-**Frontend Development:**
-- Node.js 16+
-- npm or yarn
-
-**Audio Processing Dependencies:**
-```bash
-# Core audio libraries
-pip install librosa soundfile scipy numpy
-
-# Machine learning frameworks
-pip install tensorflow scikit-learn
-
-# Database and web framework
-pip install sqlalchemy psycopg2 fastapi uvicorn
-
-# Data processing
-pip install pandas matplotlib seaborn
-```
-
-### Installation
-
-1. **Clone and setup environment:**
-   ```bash
-   git clone https://github.com/your-team/georgia-frog-classifier.git
-   cd georgia-frog-classifier
-   
-   # Backend setup
-   conda create -n frog-classifier python=3.9
-   conda activate frog-classifier
-   pip install -r backend/requirements.txt
-   
-   # Frontend setup
-   cd frontend
-   npm install
-   ```
-
-2. **Database initialization:**
-   ```bash
-   # Start PostgreSQL container
-   docker-compose up -d postgres
-   
-   # Run migrations
-   cd backend
-   python -m alembic upgrade head
-   ```
-
-3. **Data pipeline setup:**
-   ```bash
-   # Initialize data mining
-   python scripts/init_data_sources.py
-   
-   # Run initial data collection
-   python -m backend.data_mining.pipelines.initial_collection
-   ```
-
-4. **Start development servers:**
-   ```bash
-   # Backend API
-   cd backend
-   uvicorn api.main:app --reload
-   
-   # Frontend dashboard
-   cd frontend
-   npm run dev
-   ```
-
-## Data Collection Strategy
-
-### Phase 1: Existing Datasets
-- Target 500+ recordings per species from established databases
-- Focus on high-quality, labeled recordings from Georgia locations
-- Implement data quality scoring system
-
-### Phase 2: Citizen Science Integration
-- Develop partnerships with local herpetological societies
-- Create submission portal for citizen scientists
-- Implement crowd-sourced validation system
-
-### Phase 3: Field Recording Campaign
-- Coordinate with Georgia DNR for sampling locations
-- Standardized recording protocols and equipment
-- Seasonal recording schedules aligned with breeding patterns
-
-## Model Development Roadmap
-
-### Milestone 1: Baseline Models (Weeks 1-4)
-- Simple CNN on mel-spectrograms
-- Traditional ML approaches (SVM, Random Forest) on MFCC features
-- Establish evaluation metrics and benchmarks
-
-### Milestone 2: Advanced Architectures (Weeks 5-8)
-- ResNet-based CNN for improved spectrogram classification
-- LSTM/GRU networks for temporal pattern recognition
-- Attention mechanisms for call structure analysis
-
-### Milestone 3: Ensemble and Production (Weeks 9-12)
-- Model ensemble combining multiple approaches
-- Real-time inference optimization
-- Confidence calibration and uncertainty quantification
-
-## Data Science Deliverables
-
-1. **Comprehensive Dataset**: Curated collection of Georgia frog vocalizations with quality metadata
-2. **Processing Pipeline**: Robust, scalable audio preprocessing and feature extraction system
-3. **Classification Models**: Multiple trained models with thorough performance evaluation
-4. **Evaluation Framework**: Rigorous testing methodology with cross-validation and statistical analysis
-5. **Interactive Dashboard**: Functional visualization platform for exploring data and model results
-6. **Technical Documentation**: Detailed methodology, model architecture, and performance analysis
-
-## Team Collaboration
-
-### Data Science Roles
-- **Data Engineer**: Mining pipelines, database architecture, data quality
-- **ML Engineer**: Model development, training infrastructure, evaluation
-- **Audio Signal Processing**: Feature extraction, preprocessing, domain expertise
-- **Full-Stack Developer**: Dashboard integration, API development, deployment
-
-### Development Workflow
-- Feature branches with peer review
-- Automated testing for data pipelines and models
-- Regular model performance monitoring
-- Documentation-driven development
-
-## Performance Goals
-
-### Data Quality Targets
-- 90%+ data quality scores for training set
-- Balanced representation across species (minimum 300 recordings each)
-- Geographic diversity across Georgia ecoregions
-
-### Model Performance Targets
-- Top-1 accuracy: >85% on test set
-- Top-3 accuracy: >95% on test set
-- False positive rate: <10% per species
-- Real-time inference capability (<2 seconds per classification)
-
-## Critical Challenges & Mitigation
-
-### Data Challenges
-- **Limited labeled data**: Active learning, data augmentation, transfer learning
-- **Class imbalance**: Weighted sampling, synthetic data generation
-- **Recording quality variation**: Robust preprocessing, quality-aware training
-
-### Technical Challenges
-- **Audio processing complexity**: Leverage established libraries, domain expertise
-- **Model interpretability**: Attention visualization, feature importance analysis
-- **Scalability**: Containerized deployment, efficient data pipelines
-
-## License & Contributing
-
-This project is developed as an academic capstone with potential for open-source release. See CONTRIBUTING.md for development guidelines and code standards.
-
-## Acknowledgments
-
-- Georgia Department of Natural Resources for species data
-- Xeno-canto communities for bioacoustic databases
-- Georgia State Data Science Program faculty advisors
+If you'd like, I can add a single-line helper to the notebook to emit `metadata_all.csv`, or move spectrogram `.npy` files into `data/spectrograms/{split}/{species}/` if you prefer datasets physically partitioned by split.
