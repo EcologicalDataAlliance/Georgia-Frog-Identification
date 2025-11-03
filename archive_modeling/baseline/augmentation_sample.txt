@@ -1,0 +1,12 @@
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\northern_cricket_frog\ML105277_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\american_toad\ML183625_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\green_tree_frog\ML207938_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\copes_gray_treefrog\ML506566011_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\not_frogs\mixkit-forest-with-birds-singing-1235_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\eastern_narrow_mouthed_toad\ML199792_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\spring_peeper\dlg_ggpd_n200-g2-m1-2013-c3-track-75_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\fowlers_toad\ML207045_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\green_frog\ML636468579_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\eastern_spadefoot_toad\59-Eastern-Spadefoot-call_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\american_bullfrog\ML56763_aug_pitch1_noise.wav
+C:\Users\Darling\DATA SCIENCE PROJECTS\VSCodeProjects\GA_Frog_ID_Data_Prep\data\augmented\sample\pickerel_frog\ML634942422-_2025-10-21T224450.980_aug_pitch1_noise.wav
