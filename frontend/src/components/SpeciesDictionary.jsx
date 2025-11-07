@@ -1,8 +1,11 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
+import { getSpeciesMediaBatch } from '../api/api'
 
 export default function SpeciesDictionary(){
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [mediaUrls, setMediaUrls] = useState({})
 
   // Placeholder species list (14 entries). Each item includes placeholder image and audio paths
   const mockSpecies = [
@@ -22,11 +25,30 @@ export default function SpeciesDictionary(){
     { id: 'Pseudacris feriarum', common: 'Upland chorus frog', slug: 'upland_chorus_frog' }
   ]
 
-  // Add derived image/audio paths
+  // Fetch media URLs from Supabase on component mount
+  useEffect(() => {
+    const fetchMediaUrls = async () => {
+      try {
+        setLoading(true)
+        const slugs = mockSpecies.map(s => s.slug)
+        const urls = await getSpeciesMediaBatch(slugs)
+        setMediaUrls(urls)
+      } catch (error) {
+        console.error('Error fetching media URLs:', error)
+        // Continue with fallback paths if backend fails
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchMediaUrls()
+  }, [])
+
+  // Add derived image/audio paths with Supabase URLs or fallbacks
   const species = mockSpecies.map(s => ({
     ...s,
-    image: `/assets/images/${s.slug}.jpg`,
-    audio: `/assets/audio/${s.slug}.mp3`
+    image: mediaUrls[s.slug]?.image || `/assets/images/${s.slug}.jpg`,
+    audio: mediaUrls[s.slug]?.audio || `/assets/audio/${s.slug}.mp3`
   }))
 
   const doSearch = (e)=>{
@@ -39,7 +61,7 @@ export default function SpeciesDictionary(){
   return (
     <section>
       <h2>Species Dictionary</h2>
-      <p>Search for species by scientific, common name, or slug name. This is a client-side placeholder; we'll wire a backend endpoint later.</p>
+      <p>Search for species by scientific, common name, or slug name. {loading && 'Loading media from Supabase...'}</p>
 
       <form className="search-form" onSubmit={doSearch}>
         <input placeholder="Search species..." value={query} onChange={e => setQuery(e.target.value)} />

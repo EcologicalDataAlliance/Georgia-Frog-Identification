@@ -33,4 +33,14 @@ export async function post(path, body, options = {}){
   return request(path, opts)
 }
 
-export default { get, post }
+// Get media URLs for a single species
+export async function getSpeciesMedia(slug){
+  return get(`/api/species/${slug}/media`)
+}
+
+// Get media URLs for multiple species (batch request)
+export async function getSpeciesMediaBatch(slugs){
+  return post('/api/species/media/batch', { slugs })
+}
+
+export default { get, post, getSpeciesMedia, getSpeciesMediaBatch }
