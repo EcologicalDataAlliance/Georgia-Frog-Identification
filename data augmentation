@@ -1,0 +1,18 @@
+def create_weighted_sampler(dataset, indices):
+    # Create weighted sampler to handle class imbalance
+    labels = []
+    for i in indices:
+        _, label = dataset[i]  # Get the (image, label) tuple and extract just the label
+        labels.append(label)
+    
+    # Get weights
+    class_counts = np.bincount(labels)
+    class_weights = 1. / class_counts
+    sample_weights = class_weights[labels]
+
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(sample_weights),
+        replacement=True
+    )
+    return sampler
