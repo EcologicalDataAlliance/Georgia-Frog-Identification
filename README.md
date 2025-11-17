@@ -205,6 +205,18 @@ EDA_frog_call_classifier_dashboard/
 
 ## Getting Started
 
+### Creating the Folder Structure
+
+**Before installation, you need to create the project folder structure.** See [FOLDER_SETUP.md](FOLDER_SETUP.md) for detailed instructions on creating folders.
+
+Quick setup:
+```bash
+# Run the automated setup script
+bash scripts/setup_folders.sh
+```
+
+For Windows users, see [FOLDER_SETUP.md](FOLDER_SETUP.md) for platform-specific instructions.
+
 ### Prerequisites
 
 **Data Science Stack:**
