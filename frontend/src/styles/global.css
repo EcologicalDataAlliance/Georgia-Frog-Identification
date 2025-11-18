@@ -43,12 +43,141 @@ body{
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 
 .file-input input[type=file]{display:block}
+.file-input .file-name{display:block;margin-top:8px;color:var(--muted);font-size:0.9rem}
 .form-actions{margin-top:12px}
-.form-actions button{padding:10px 14px;border-radius:8px;background:var(--accent);border:none;color:#ffffff;cursor:pointer}
+.form-actions button{padding:10px 14px;border-radius:8px;background:var(--accent);border:none;color:#ffffff;cursor:pointer;font-weight:500;transition:background 0.2s}
+.form-actions button:hover:not(:disabled){background:#0f4a29}
+.form-actions button:disabled{opacity:0.6;cursor:not-allowed}
 
-.error{color:#7f1d1d;background:rgba(127,29,29,0.06);padding:10px;border-radius:8px}
+.error{color:#7f1d1d;background:rgba(127,29,29,0.06);padding:10px;border-radius:8px;margin-top:12px}
 
 .result pre{background:#f3f6f8;padding:12px;border-radius:8px;overflow:auto;color:var(--muted)}
+
+/* Classifier Results Styling */
+.results-container{margin-top:24px;padding-top:24px;border-top:1px solid rgba(0,0,0,0.06)}
+.results-container h3{margin-top:0;color:var(--accent);font-size:1.3rem}
+
+.prediction-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+
+.prediction-card{
+  background:linear-gradient(135deg,rgba(255,255,255,0.95),rgba(255,255,255,0.85));
+  border:2px solid rgba(0,0,0,0.06);
+  border-radius:12px;
+  padding:16px;
+  position:relative;
+  transition:transform 0.2s,box-shadow 0.2s;
+  overflow:hidden;
+}
+
+.prediction-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(16,24,40,0.12);
+}
+
+.prediction-card[data-rank="1"]{
+  border-color:rgba(22,101,52,0.3);
+  background:linear-gradient(135deg,rgba(220,252,231,0.6),rgba(255,255,255,0.9));
+}
+
+.prediction-card[data-rank="2"]{
+  border-color:rgba(59,130,246,0.2);
+}
+
+.prediction-card[data-rank="3"]{
+  border-color:rgba(168,85,247,0.2);
+}
+
+.rank-badge{
+  position:absolute;
+  top:12px;
+  right:12px;
+  background:var(--accent);
+  color:#ffffff;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:0.9rem;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  z-index:1;
+}
+
+.prediction-card[data-rank="1"] .rank-badge{background:#166534}
+.prediction-card[data-rank="2"] .rank-badge{background:#3b82f6}
+.prediction-card[data-rank="3"] .rank-badge{background:#a855f7}
+
+.prediction-image-container{
+  width:100%;
+  height:180px;
+  border-radius:8px;
+  overflow:hidden;
+  background:#f3f6f8;
+  margin-bottom:12px;
+  position:relative;
+}
+
+.prediction-image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform 0.3s;
+}
+
+.prediction-card:hover .prediction-image{
+  transform:scale(1.05);
+}
+
+.image-placeholder{
+  width:100%;
+  height:100%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:3rem;
+  background:linear-gradient(135deg,#f3f6f8,#e5e7eb);
+}
+
+.prediction-info{
+  text-align:left;
+}
+
+.species-name{
+  margin:0 0 8px 0;
+  font-size:1.1rem;
+  color:#0b1220;
+  font-weight:600;
+}
+
+.confidence-bar-container{
+  width:100%;
+  height:8px;
+  background:rgba(0,0,0,0.06);
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+
+.confidence-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),#22c55e);
+  border-radius:4px;
+  transition:width 0.5s ease;
+}
+
+.prediction-card[data-rank="1"] .confidence-bar{background:linear-gradient(90deg,#166534,#22c55e)}
+.prediction-card[data-rank="2"] .confidence-bar{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.prediction-card[data-rank="3"] .confidence-bar{background:linear-gradient(90deg,#a855f7,#c084fc)}
+
+.confidence-text{
+  margin:0;
+  font-size:0.95rem;
+  color:var(--muted);
+  font-weight:500;
+}
+
 
 .site-footer{padding:18px 0;margin-top:24px;text-align:center;color:var(--muted);font-size:0.9rem}
 

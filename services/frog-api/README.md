@@ -87,13 +87,15 @@ pip install -r requirements.txt
 
 ### 2. Run the API Server
 
+**Important:** This API runs on port **8001** to avoid conflicts with the Express media server (port 8000).
+
 ```powershell
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 The `--reload` flag enables auto-reload when you change the code (useful for development).
 
-The API will be available at `http://localhost:8000`
+The API will be available at `http://localhost:8001`
 
 ### 3. Test the API
 

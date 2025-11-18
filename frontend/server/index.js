@@ -2,16 +2,23 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
+import multer from 'multer'
+import FormData from 'form-data'
+import fetch from 'node-fetch'
 
 // Load environment variables
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 8000
+const FROG_API_URL = process.env.FROG_API_URL || 'http://localhost:8001'
 
 // Middleware
 app.use(cors())
 app.use(express.json())
+
+// Configure multer for file uploads (memory storage)
+const upload = multer({ storage: multer.memoryStorage() })
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL
@@ -22,6 +29,49 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
+
+// Test Supabase connection and list buckets
+app.get('/test-supabase', async (req, res) => {
+  try {
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets()
+    
+    if (bucketsError) {
+      return res.status(500).json({ 
+        error: 'Failed to list buckets', 
+        details: bucketsError.message 
+      })
+    }
+    
+    // Try to list files in Species Catalog
+    let catalogFiles = null
+    let catalogError = null
+    
+    if (buckets.find(b => b.name === 'Species Catalog')) {
+      const { data: files, error } = await supabase
+        .storage
+        .from('Species Catalog')
+        .list('images', { limit: 10 })
+      catalogFiles = files
+      catalogError = error
+    }
+    
+    res.json({
+      supabaseUrl,
+      buckets: buckets.map(b => ({ name: b.name, public: b.public })),
+      speciesCatalogTest: {
+        exists: !!buckets.find(b => b.name === 'Species Catalog'),
+        sampleFiles: catalogFiles,
+        error: catalogError?.message
+      }
+    })
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Supabase test failed', 
+      message: error.message 
+    })
+  }
+})
+
 
 // Get public URLs for species media (audio and image)
 app.get('/api/species/:slug/media', async (req, res) => {
@@ -152,9 +202,67 @@ app.get('/api/storage/buckets', async (req, res) => {
   }
 })
 
+// Proxy endpoint for frog classification
+app.post('/classify', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        error: 'No file uploaded. Please select an audio file.' 
+      })
+    }
+
+    // Create FormData to send to FastAPI
+    const formData = new FormData()
+    formData.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    })
+
+    // Forward the request to FastAPI
+    const response = await fetch(`${FROG_API_URL}/predict-audio`, {
+      method: 'POST',
+      body: formData,
+      headers: formData.getHeaders(),
+    })
+
+    const data = await response.json()
+    
+    if (!response.ok) {
+      return res.status(response.status).json(data)
+    }
+
+    // Enhance response with image URLs for top 3 predictions
+    if (data.top_3 && Array.isArray(data.top_3)) {
+      const bucketName = 'Species Catalog'
+      
+      for (const prediction of data.top_3) {
+        const slug = prediction.species
+        const imagePath = `images/${slug}/${slug}.jpg`
+        
+        const { data: imageData } = supabase
+          .storage
+          .from(bucketName)
+          .getPublicUrl(imagePath)
+        
+        prediction.image_url = imageData.publicUrl
+      }
+    }
+
+    res.json(data)
+  } catch (error) {
+    console.error('Error proxying to FastAPI:', error)
+    res.status(500).json({ 
+      error: 'Failed to classify audio', 
+      message: error.message,
+      details: 'Ensure FastAPI service is running on ' + FROG_API_URL
+    })
+  }
+})
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`)
+  console.log(`📡 FastAPI proxy target: ${FROG_API_URL}`)
   console.log(`Supabase URL: ${supabaseUrl}`)
   console.log(`Bucket: Species Catalog`)
 })
