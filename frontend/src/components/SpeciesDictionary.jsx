@@ -33,9 +33,23 @@ export default function SpeciesDictionary(){
         const slugs = mockSpecies.map(s => s.slug)
         const urls = await getSpeciesMediaBatch(slugs)
         setMediaUrls(urls)
+        
+        // Create species with media URLs and set as initial results
+        const speciesWithMedia = mockSpecies.map(s => ({
+          ...s,
+          image: urls[s.slug]?.image || `/assets/images/${s.slug}.jpg`,
+          audio: urls[s.slug]?.audio || `/assets/audio/${s.slug}.mp3`
+        }))
+        setResults(speciesWithMedia)
       } catch (error) {
         console.error('Error fetching media URLs:', error)
         // Continue with fallback paths if backend fails
+        const fallbackSpecies = mockSpecies.map(s => ({
+          ...s,
+          image: `/assets/images/${s.slug}.jpg`,
+          audio: `/assets/audio/${s.slug}.mp3`
+        }))
+        setResults(fallbackSpecies)
       } finally {
         setLoading(false)
       }
@@ -44,18 +58,19 @@ export default function SpeciesDictionary(){
     fetchMediaUrls()
   }, [])
 
-  // Add derived image/audio paths with Supabase URLs or fallbacks
-  const species = mockSpecies.map(s => ({
-    ...s,
-    image: mediaUrls[s.slug]?.image || `/assets/images/${s.slug}.jpg`,
-    audio: mediaUrls[s.slug]?.audio || `/assets/audio/${s.slug}.mp3`
-  }))
-
   const doSearch = (e)=>{
     e.preventDefault()
     const q = query.toLowerCase().trim()
-    if(!q) return setResults(species)
-    setResults(species.filter(s => s.id.toLowerCase().includes(q) || s.common.toLowerCase().includes(q) || s.slug.includes(q)))
+    
+    // Rebuild species list with current media URLs
+    const speciesWithMedia = mockSpecies.map(s => ({
+      ...s,
+      image: mediaUrls[s.slug]?.image || `/assets/images/${s.slug}.jpg`,
+      audio: mediaUrls[s.slug]?.audio || `/assets/audio/${s.slug}.mp3`
+    }))
+    
+    if(!q) return setResults(speciesWithMedia)
+    setResults(speciesWithMedia.filter(s => s.id.toLowerCase().includes(q) || s.common.toLowerCase().includes(q) || s.slug.includes(q)))
   }
 
   return (

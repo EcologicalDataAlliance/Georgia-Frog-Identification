@@ -1,9 +1,2 @@
-frontend
-- home screen needs revamp
-- i need to figure out why i cna add eastern narrow mouthed toad image to species catalog bucket.
-- species dictionary page needs to default show all species
-- classifier can take all of those types files?? investigate
 frog api
 - need different credentials for new bucket entries
-github
-- organization
