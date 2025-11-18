@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Model files (optional - uncomment if models are large and stored elsewhere)
+# *.joblib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_audio_*.mp3
+ReelAudio*.mp3
+# Avoid committing audio binaries
+*.mp3
+*.wav
+*.flac
+*.ogg
+*.m4a
