@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Jupyter
+*.ipynb
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+SUPABASE_SETUP.md
+reports/
+
+# Test files
+test_api.py
+test_audio.py
+*.mp3
+*.wav
+
+# Environment and sensitive files
+.env
+.env.local
+supabase_schema.sql
+
+# OS
+.DS_Store
+Thumbs.db
