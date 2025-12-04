@@ -1,2 +1,5 @@
 frog api
 - need different credentials for new bucket entries
+- include support for more file types
+
+Dataset validation - Final RF Model Accuracy Assessment

@@ -21,22 +21,43 @@ python scripts/svm_train.py
 
 ---
 
+### `generate_confusion_matrix.py`
+**Purpose**: Generate publication-ready confusion matrices with clear class labels.
+
+**What it does**:
+- Loads trained model and scaler
+- Generates predictions on test data
+- Creates both count-based and normalized confusion matrices
+- Properly formats species names (e.g., "Fowler's Toad", "Cope's Gray Treefrog")
+- Saves high-resolution (300 DPI) images
+- Generates detailed classification report (precision/recall/F1)
+
+**Usage**:
+```bash
+# Basic usage with test data CSV
+python scripts/generate_confusion_matrix.py --data data/processed/test_set.csv
+
+# Custom output and figure size
+python scripts/generate_confusion_matrix.py \
+    --data data/test.csv \
+    --output reports/figures/poster_cm.png \
+    --figsize 16 14 \
+    --fontsize 12
+
+# Normalized matrix only
+python scripts/generate_confusion_matrix.py --data data/test.csv --normalize
+```
+
+**Dependencies**: numpy, pandas, matplotlib, seaborn, scikit-learn, joblib
+
+**Documentation**: See `scripts/CONFUSION_MATRIX_GUIDE.md` for detailed usage
+
+---
+
 ### `evaluate_rf.py` (Proposed)
 **Purpose**: Automated evaluation of the Random Forest model.
 
-**What it would do**:
-- Load trained `rf_calibrated_model.joblib` and `scaler.joblib`
-- Load test dataset (X_test, y_test)
-- Compute accuracy, F1 scores, classification report
-- Generate and save confusion matrix to `reports/`
-- Export metrics as JSON for CI/CD integration
-
-**Expected usage**:
-```bash
-python scripts/evaluate_rf.py --model services/frog-api/rf_calibrated_model.joblib --data data/X_test.npy
-```
-
-**Status**: Template provided in `POSTER_SUMMARY.md`, not yet implemented
+**Status**: Template provided in `POSTER_SUMMARY.md`, not yet implemented. Consider using `generate_confusion_matrix.py` for evaluation needs.
 
 ---
 
